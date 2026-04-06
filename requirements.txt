@@ -1,1 +1,8 @@
-pip install numpy pandas sklearn scipy matplotlib seaborn tensorflow
+numpy
+pandas
+scikit-learn
+scipy
+matplotlib
+seaborn
+flask
+flask-cors

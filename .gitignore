@@ -1,6 +1,12 @@
 # files
-
+*.pkl
+*.h5
+*.log
+.env
+.DS_Store
 
 # dirs
 __pycache__/
 venv/
+.idea/
+.vscode/

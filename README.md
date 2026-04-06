@@ -1,72 +1,42 @@
-# CKD Predictor ML Analysis  
-A machine learning project using various algorithms including neural networks, clustering, decision trees, and naive Bayesian to predict the presence of Chronic Kidney Disease (CKD) in patients based on a dataset of 400 samples. The project also showcases a preprocessing and data cleaning process. 
-The project is part of OpenU Data-mining course, the dataset was given.
-  
-Part of OpenU Data-mining course final project.  
-  
-Please note, this project is for educational purposes and the dataset size is relatively small for real-world applications.  
-    
-## Structure  
-  
-- ```main.py``` : The main driver script that invokes functions from other modules. This is where you should run the project, _Important_ - see 'Usage' section.  
-  
-- ```helper.py``` : Contains functions for loading the dataset, preprocessing and cleaning data, as well as data exploration and visualization.  
-  
-- ```models.py``` : Includes Decision Tree / Naive Bayes / Clustering models training and evaluation functions  
-  
-- ```neural_network.py``` : Handles building, training, evaluating, and plotting of the neural network model.  
-  
-## Requirements  
-  
-- numpy  
-- pandas  
-- sklearn  
-- scipy  
-- matplotlib  
-- seaborn  
-- tensorflow  
-  
-_Use ```pip install -r requirements.txt``` to auto install_  
-  
-## Dataset Variations  
-  
-In the ```datasetVariations``` directory you would find many variations of the Chronic Kidney Disease (CKD) Dataset, the variations are steps taken during the project, for example, ```CKDF_filledAllNumeric``` is the CKD dataset variation which is already filled the missing values and turn all the data into numeric form.  
-  
-In ```main.py```, the process is starting with ```CKDF_noQmarks_unindexed```, which is the CKD dataset variation which is replaced all the Question marks which were (because originally it was ```.arff``` format) and replaced by ```.csv``` appropriate format, also, removed the _index_ column.
-  
-## Workflow  
-  
-The main workflow is sticking to best practices;  
-  
-- Load the data.  
-- EDA (not implemented in ```main.py```).  
-- Split into training/validation/test sets.  
-- Data Preprocessing (validation and test sets are preprocessed with training set parameters).  
-- Training  
-- Evaluation  
-  
-## Usage  
-  
-You should run ```python main.py```  
-  
-```main.py``` is divided into three Sections, _ Each Section must be running seperately from the other ones, thus when you decide which section to run, you must comment the other sections, else unwanted behaviour will occur.  
-  
-In the current state of the project, Section 1 is ready for running, Sections 2,3 are in comment.  
-  
-- Section 1 : Supervised ML (not deep learning) models (no validation set).    
-- Section 2 : Unsupervised clustering models (only kmeans for now), no split.  
-- Section 3 : Predefined simple and basic feedforward Neural Network model (with validation set).
-  
-## PDF's  
-  
-As described in the starting description, this was part of a Data-mining course, which was splitted into two parts.  
-  
-The PDF's are the project in-depth analysis, they're written in Hebrew.  
-  
-If you really want an English version, contact me, I'll translate it.  
-  
-## Results  
-  
-I'll give you the honor to run and check the results, there are some ```.png```'s of the results I got in the ```resultsPngs``` directory.  
+# SYS.DIAG_CKD
 
-  
+A machine learning web application for predicting the presence of Chronic Kidney Disease (CKD) in patients. The project utilizes a Random Forest algorithm and provides a web-based diagnostic interface to evaluate clinical data.
+
+## Architecture
+
+- `backend/`: A Flask-based REST API that utilizes a pre-trained scikit-learn Random Forest pipeline (`rf_model.pkl`) to calculate CKD risk probability.
+- `frontend/`: A pure HTML, CSS, and vanilla JavaScript interface for data entry and prediction visualization.
+
+## Installation and Setup
+
+### 1. Backend Setup
+Initialize the Python environment and install the required dependencies:
+
+```bash
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment (Windows)
+.\venv\Scripts\activate
+
+# Install the required packages
+pip install -r requirements.txt
+```
+
+### 2. Running the Server
+Keep the virtual environment active and start the Flask API server:
+
+```bash
+python backend/server.py
+```
+The server will start locally on `http://127.0.0.1:5000`.
+
+### 3. Running the Frontend
+There is no local web server required for the client application.
+1. Navigate to the `frontend/` directory.
+2. Open `index.html` directly in any modern web browser.
+
+## Application Features
+- Real-time, percentage-based risk assessments for CKD using a custom prediction pipeline.
+- Built-in sample data injection ("Load Healthy" and "Load At-Risk") for rapid system testing.
+- Included `deploy_model.py` script for re-compiling and exporting the underlying model pipeline.

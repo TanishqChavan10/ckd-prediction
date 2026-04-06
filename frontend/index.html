@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKD Predictor Terminal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <main class="container">
+        <header class="sys-header">
+            <h1>SYS.DIAG_CKD // v1.0</h1>
+            <p class="status-marker">[ STATUS: ONLINE ]</p>
+        </header>
+
+        <section class="patient-matrix">
+            <div class="matrix-header">
+                <h2>PATIENT DATA MATRIX</h2>
+                <div class="mock-data-controls">
+                    <button type="button" id="btn-healthy" class="mock-btn healthy-btn">LOAD HEALTHY [NO CKD]</button>
+                    <button type="button" id="btn-ckd" class="mock-btn ckd-btn">LOAD AT-RISK [CKD]</button>
+                </div>
+            </div>
+            
+            <form id="prediction-form">
+                <div class="form-grid">
+                    <!-- Base Demographics & Vitals -->
+                    <div class="input-group">
+                        <label>AGE</label>
+                        <input type="number" id="age" name="age" required value="48">
+                    </div>
+                    <div class="input-group">
+                        <label>BLOOD PRESSURE (BP)</label>
+                        <input type="number" id="bp" name="bp" required value="70">
+                    </div>
+                    <div class="input-group">
+                        <label>SPECIFIC GRAVITY (SG)</label>
+                        <input type="number" step="0.001" id="sg" name="sg" required value="1.005">
+                    </div>
+                    <div class="input-group">
+                        <label>ALBUMIN (AL)</label>
+                        <input type="number" id="al" name="al" required value="4">
+                    </div>
+                    <div class="input-group">
+                        <label>SUGAR (SU)</label>
+                        <input type="number" id="su" name="su" required value="0">
+                    </div>
+                    
+                    <!-- Clinical Values -->
+                    <div class="input-group">
+                        <label>B. GLUCOSE RAND (BGR)</label>
+                        <input type="number" id="bgr" name="bgr" required value="117">
+                    </div>
+                    <div class="input-group">
+                        <label>BLOOD UREA (BU)</label>
+                        <input type="number" id="bu" name="bu" required value="56">
+                    </div>
+                    <div class="input-group">
+                        <label>SERUM CREATININE (SC)</label>
+                        <input type="number" step="0.1" id="sc" name="sc" required value="3.8">
+                    </div>
+                    <div class="input-group">
+                        <label>SODIUM (SOD)</label>
+                        <input type="number" id="sod" name="sod" required value="111">
+                    </div>
+                    <div class="input-group">
+                        <label>POTASSIUM (POT)</label>
+                        <input type="number" step="0.1" id="pot" name="pot" required value="2.5">
+                    </div>
+                    <div class="input-group">
+                        <label>HEMOGLOBIN (HEMO)</label>
+                        <input type="number" step="0.1" id="hemo" name="hemo" required value="11.2">
+                    </div>
+                    <div class="input-group">
+                        <label>PACKED CELL VOL (PCV)</label>
+                        <input type="number" id="pcv" name="pcv" required value="32">
+                    </div>
+                    <div class="input-group">
+                        <label>WHITE BLOOD CELL (WC)</label>
+                        <input type="number" id="wc" name="wc" required value="6700">
+                    </div>
+
+                    <!-- Binaries (0 = Abnormal/No, 1 = Normal/Yes) -->
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">RBC NORMAL
+                            <input type="checkbox" id="rbc" name="rbc" checked>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">PUS CELL NORMAL
+                            <input type="checkbox" id="pc" name="pc" checked>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">PUS CELL CLUMPS
+                            <input type="checkbox" id="pcc" name="pcc">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">BACTERIA
+                            <input type="checkbox" id="ba" name="ba">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">APPETITE GOOD
+                            <input type="checkbox" id="appet" name="appet" checked>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">PEDAL EDEMA
+                            <input type="checkbox" id="pe" name="pe">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">ANEMIA
+                            <input type="checkbox" id="ane" name="ane">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="input-group checkbox-group">
+                        <label class="cb-container">CORONARY ART DIS
+                            <input type="checkbox" id="cad" name="cad">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+
+                </div>
+                
+                <div class="action-panel">
+                    <button type="submit" class="predict-btn">EXECUTE_PREDICTION</button>
+                    <div id="result-box" class="result-box hidden">
+                        <div class="risk-meter-container" id="risk-meter-container" style="display: none;">
+                            <div class="risk-meter-fill" id="risk-fill" style="width: 0%;"></div>
+                            <div class="risk-meter-text" id="risk-score-text">0%</div>
+                        </div>
+                        <span id="result-text">AWAITING INPUT...</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const healthyProfile = {
+            age: 34, bp: 80, sg: 1.020, al: 0, su: 0, bgr: 99, bu: 33, sc: 0.8, sod: 140, pot: 4.5, hemo: 15.2, pcv: 45, wc: 6500,
+            rbc: true, pc: true, pcc: false, ba: false, appet: true, pe: false, ane: false, cad: false
+        };
+
+        const ckdProfile = {
+            age: 62, bp: 100, sg: 1.010, al: 4, su: 2, bgr: 220, bu: 160, sc: 7.2, sod: 125, pot: 5.8, hemo: 9.2, pcv: 24, wc: 11000,
+            rbc: false, pc: false, pcc: true, ba: true, appet: false, pe: true, ane: true, cad: true
+        };
+
+        function loadProfile(profile) {
+            for (const [key, value] of Object.entries(profile)) {
+                const el = document.getElementById(key);
+                if (!el) continue;
+                if (el.type === 'checkbox') {
+                    el.checked = value;
+                } else {
+                    el.value = value;
+                }
+                // flash animation for inputs
+                const wrapper = el.type === 'checkbox' ? el.parentElement.parentElement : el.parentElement;
+                const originalBg = wrapper.style.backgroundColor;
+                wrapper.style.backgroundColor = "var(--accent-yellow)";
+                setTimeout(() => wrapper.style.backgroundColor = originalBg, 300);
+            }
+        }
+
+        document.getElementById('btn-healthy').addEventListener('click', () => loadProfile(healthyProfile));
+        document.getElementById('btn-ckd').addEventListener('click', () => loadProfile(ckdProfile));
+
+        document.getElementById('prediction-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultBox = document.getElementById('result-box');
+            const resultText = document.getElementById('result-text');
+            
+            resultBox.classList.remove('hidden');
+            resultBox.classList.remove('danger', 'safe');
+            resultText.innerText = "[ PROCESSING MATRIX... ]";
+            
+            // Gather form data
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Ensure checkboxes that are unchecked are sent as 0, checked as 1
+            const checkboxNames = ['rbc', 'pc', 'pcc', 'ba', 'appet', 'pe', 'ane', 'cad'];
+            checkboxNames.forEach(name => {
+                data[name] = e.target.elements[name].checked ? 1 : 0;
+            });
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if(result.error) {
+                    resultBox.classList.add('danger');
+                    resultText.innerText = "[ERROR] " + result.error;
+                    return;
+                }
+
+                document.getElementById('risk-meter-container').style.display = 'block';
+                const p = result.risk_percentage;
+                const riskFill = document.getElementById('risk-fill');
+                const riskScoreText = document.getElementById('risk-score-text');
+
+                setTimeout(() => {
+                    riskFill.style.width = p + "%";
+                }, 50);
+
+                riskScoreText.innerText = p + "% RISK SCORE";
+
+                if (p > 70) {
+                    resultBox.className = 'result-box danger';
+                    riskFill.style.backgroundColor = "var(--accent-red)";
+                    resultText.innerText = "HIGH LIKELIHOOD OF CKD";
+                } else if (p > 30) {
+                    resultBox.className = 'result-box borderline';
+                    riskFill.style.backgroundColor = "var(--accent-yellow)";
+                    resultText.innerText = "BORDERLINE RISK - MONITOR CLOSELY";
+                } else {
+                    resultBox.className = 'result-box safe';
+                    riskFill.style.backgroundColor = "#00aa00";
+                    resultText.innerText = "HEALTHY - LOW LIKELIHOOD";
+                }
+            } catch (err) {
+                resultBox.classList.add('danger');
+                resultText.innerText = "[ERROR] SYS.BACKEND OFFLINE";
+            }
+        });
+    </script>
+</body>
+</html>
