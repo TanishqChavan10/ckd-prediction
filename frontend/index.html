@@ -136,12 +136,28 @@
                 
                 <div class="action-panel">
                     <button type="submit" class="predict-btn">EXECUTE_PREDICTION</button>
-                    <div id="result-box" class="result-box hidden">
-                        <div class="risk-meter-container" id="risk-meter-container" style="display: none;">
-                            <div class="risk-meter-fill" id="risk-fill" style="width: 0%;"></div>
-                            <div class="risk-meter-text" id="risk-score-text">0%</div>
+                    <div id="result-container" class="hidden" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                        
+                        <!-- RF Model Result -->
+                        <div id="rf-result-box" class="result-box">
+                            <div style="font-size: 0.9rem; text-transform: uppercase; margin-bottom: 0.5rem;">[ Random Forest Model ]</div>
+                            <div class="risk-meter-container" id="rf-risk-meter-container" style="display: none;">
+                                <div class="risk-meter-fill" id="rf-risk-fill" style="width: 0%;"></div>
+                                <div class="risk-meter-text" id="rf-risk-score-text">0%</div>
+                            </div>
+                            <span id="rf-result-text">AWAITING INPUT...</span>
                         </div>
-                        <span id="result-text">AWAITING INPUT...</span>
+
+                        <!-- NB Model Result -->
+                        <div id="nb-result-box" class="result-box">
+                            <div style="font-size: 0.9rem; text-transform: uppercase; margin-bottom: 0.5rem;">[ Naive Bayes Model ]</div>
+                            <div class="risk-meter-container" id="nb-risk-meter-container" style="display: none;">
+                                <div class="risk-meter-fill" id="nb-risk-fill" style="width: 0%;"></div>
+                                <div class="risk-meter-text" id="nb-risk-score-text">0%</div>
+                            </div>
+                            <span id="nb-result-text">AWAITING INPUT...</span>
+                        </div>
+                        
                     </div>
                 </div>
             </form>
@@ -179,15 +195,50 @@
         document.getElementById('btn-healthy').addEventListener('click', () => loadProfile(healthyProfile));
         document.getElementById('btn-ckd').addEventListener('click', () => loadProfile(ckdProfile));
 
+        function updateModelResult(prefix, riskPercentage) {
+            const box = document.getElementById(`${prefix}-result-box`);
+            const fill = document.getElementById(`${prefix}-risk-fill`);
+            const text = document.getElementById(`${prefix}-result-text`);
+            const container = document.getElementById(`${prefix}-risk-meter-container`);
+            const scoreText = document.getElementById(`${prefix}-risk-score-text`);
+            
+            box.classList.remove('danger', 'borderline', 'safe');
+            container.style.display = 'block';
+
+            setTimeout(() => {
+                fill.style.width = riskPercentage + "%";
+            }, 50);
+
+            scoreText.innerText = riskPercentage + "% RISK SCORE";
+
+            if (riskPercentage > 70) {
+                box.classList.add('danger');
+                fill.style.backgroundColor = "var(--accent-red)";
+                text.innerText = "HIGH LIKELIHOOD OF CKD";
+            } else if (riskPercentage > 30) {
+                box.classList.add('borderline');
+                fill.style.backgroundColor = "var(--accent-yellow)";
+                text.innerText = "BORDERLINE RISK - MONITOR CLOSELY";
+            } else {
+                box.classList.add('safe');
+                fill.style.backgroundColor = "#00aa00";
+                text.innerText = "HEALTHY - LOW LIKELIHOOD";
+            }
+        }
+
         document.getElementById('prediction-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const resultBox = document.getElementById('result-box');
-            const resultText = document.getElementById('result-text');
+            const resultContainer = document.getElementById('result-container');
+            const rfBox = document.getElementById('rf-result-box');
+            const nbBox = document.getElementById('nb-result-box');
             
-            resultBox.classList.remove('hidden');
-            resultBox.classList.remove('danger', 'safe');
-            resultText.innerText = "[ PROCESSING MATRIX... ]";
+            resultContainer.classList.remove('hidden');
+            rfBox.classList.remove('danger', 'safe', 'borderline');
+            nbBox.classList.remove('danger', 'safe', 'borderline');
+            
+            document.getElementById('rf-result-text').innerText = "[ PROCESSING... ]";
+            document.getElementById('nb-result-text').innerText = "[ PROCESSING... ]";
             
             // Gather form data
             const formData = new FormData(e.target);
@@ -209,38 +260,21 @@
                 const result = await response.json();
                 
                 if(result.error) {
-                    resultBox.classList.add('danger');
-                    resultText.innerText = "[ERROR] " + result.error;
+                    rfBox.classList.add('danger');
+                    nbBox.classList.add('danger');
+                    document.getElementById('rf-result-text').innerText = "[ERROR] " + result.error;
+                    document.getElementById('nb-result-text').innerText = "[ERROR] " + result.error;
                     return;
                 }
 
-                document.getElementById('risk-meter-container').style.display = 'block';
-                const p = result.risk_percentage;
-                const riskFill = document.getElementById('risk-fill');
-                const riskScoreText = document.getElementById('risk-score-text');
+                updateModelResult('rf', result.rf_risk_percentage);
+                updateModelResult('nb', result.nb_risk_percentage);
 
-                setTimeout(() => {
-                    riskFill.style.width = p + "%";
-                }, 50);
-
-                riskScoreText.innerText = p + "% RISK SCORE";
-
-                if (p > 70) {
-                    resultBox.className = 'result-box danger';
-                    riskFill.style.backgroundColor = "var(--accent-red)";
-                    resultText.innerText = "HIGH LIKELIHOOD OF CKD";
-                } else if (p > 30) {
-                    resultBox.className = 'result-box borderline';
-                    riskFill.style.backgroundColor = "var(--accent-yellow)";
-                    resultText.innerText = "BORDERLINE RISK - MONITOR CLOSELY";
-                } else {
-                    resultBox.className = 'result-box safe';
-                    riskFill.style.backgroundColor = "#00aa00";
-                    resultText.innerText = "HEALTHY - LOW LIKELIHOOD";
-                }
             } catch (err) {
-                resultBox.classList.add('danger');
-                resultText.innerText = "[ERROR] SYS.BACKEND OFFLINE";
+                rfBox.classList.add('danger');
+                nbBox.classList.add('danger');
+                document.getElementById('rf-result-text').innerText = "[ERROR] SYS.BACKEND OFFLINE";
+                document.getElementById('nb-result-text').innerText = "[ERROR] SYS.BACKEND OFFLINE";
             }
         });
     </script>
